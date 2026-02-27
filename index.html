@@ -17,6 +17,7 @@
                     colors: {
                         "primary": "#135bec", 
                         "torani-blue": "#1e3a8a",
+                        "torani-gold": "#b45309",
                         "background-light": "#f6f6f8",
                         "background-dark": "#101622",
                         "surface-dark": "#192233",
@@ -107,7 +108,12 @@
 
     <button onclick="switchApp('torah')" id="side-torah" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
         <span class="material-symbols-outlined">auto_stories</span>
-        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">עריכה תורנית</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">מחודדין (שאלות)</span>
+    </button>
+
+    <button onclick="switchApp('torah-edit')" id="side-torah-edit" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">history_edu</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">ניסוח מאמרים</span>
     </button>
 
     <button onclick="switchApp('chat')" id="side-chat" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
@@ -161,23 +167,14 @@
                         </div>
                     </div>
                 </div>
-                
                 <div id="recordBtn" onclick="toggleRecording(event)" class="relative overflow-hidden flex flex-col items-center justify-center rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark px-4 py-8 hover:shadow-md cursor-pointer">
-                    <div id="micIconContainer" class="size-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4 transition-transform hover:scale-105">
-                        <span class="material-symbols-outlined text-[32px]">mic</span>
-                    </div>
+                    <div id="micIconContainer" class="size-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4 transition-transform hover:scale-105"><span class="material-symbols-outlined text-[32px]">mic</span></div>
                     <canvas id="visualizer" width="200" height="80" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] h-[80px] rounded-lg"></canvas>
                     <p id="recordLabel" class="text-slate-900 dark:text-white font-bold relative z-20">הקלטה חיה</p>
-                    <button id="recordActionBtn" class="mt-4 w-full py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-xs transition-colors shadow-lg shadow-red-500/20 relative z-20">
-                        <span id="recordText">התחל להקליט</span>
-                    </button>
+                    <button id="recordActionBtn" class="mt-4 w-full py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-xs transition-colors shadow-lg shadow-red-500/20 relative z-20"><span id="recordText">התחל להקליט</span></button>
                 </div>
             </div>
-
-            <div id="previewContainer" class="hidden mb-8 bg-black/5 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-border-dark">
-                <video id="filePreview" controls class="w-full rounded-lg max-h-[300px] bg-black"></video>
-            </div>
-
+            <div id="previewContainer" class="hidden mb-8 bg-black/5 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-border-dark"><video id="filePreview" controls class="w-full rounded-lg max-h-[300px] bg-black"></video></div>
             <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                 <div class="flex flex-col gap-4">
                     <label class="flex flex-col gap-2">
@@ -194,20 +191,11 @@
                     <textarea id="promptInput" class="w-full h-full min-h-[180px] rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-primary focus:border-primary p-4 text-sm resize-none custom-scrollbar" placeholder="תמלל את השיחה בעברית רשמית..."></textarea>
                 </div>
             </section>
-
             <div id="processSection" class="hidden mb-8 bg-white dark:bg-surface-dark rounded-xl p-6 border border-slate-200 dark:border-border-dark shadow-inner">
-                <div class="flex justify-between items-center mb-2">
-                    <span id="statusText" class="text-sm font-bold text-primary">מעבד...</span>
-                    <button onclick="cancelProcess()" class="text-xs text-red-500 font-bold hover:underline">ביטול</button>
-                </div>
+                <div class="flex justify-between items-center mb-2"><span id="statusText" class="text-sm font-bold text-primary">מעבד...</span><button onclick="cancelProcess()" class="text-xs text-red-500 font-bold hover:underline">ביטול</button></div>
                 <div class="w-full bg-slate-100 dark:bg-[#111722] rounded-full h-2.5"><div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
             </div>
-
-            <div class="flex flex-col gap-4 py-8 border-t border-slate-200 dark:border-border-dark items-center">
-                <button id="runBtn" onclick="runTranscriptionProcess()" class="flex w-full max-w-[400px] items-center justify-center rounded-xl h-14 bg-primary text-white gap-3 text-lg font-bold shadow-lg shadow-primary/25 hover:bg-blue-600 hover:scale-[1.01] transition-all">
-                    <span class="material-symbols-outlined text-[24px]">rocket_launch</span> התחל תמלול
-                </button>
-            </div>
+            <div class="flex flex-col gap-4 py-8 border-t border-slate-200 dark:border-border-dark items-center"><button id="runBtn" onclick="runTranscriptionProcess()" class="flex w-full max-w-[400px] items-center justify-center rounded-xl h-14 bg-primary text-white gap-3 text-lg font-bold shadow-lg shadow-primary/25 hover:bg-blue-600 hover:scale-[1.01] transition-all"><span class="material-symbols-outlined text-[24px]">rocket_launch</span> התחל תמלול</button></div>
         </div>
 
         <div id="view-editor" class="hidden animate-fade-in">
@@ -218,29 +206,7 @@
                     <button onclick="downloadText()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition-all gap-2"><span class="material-symbols-outlined text-[18px]">download</span> הורד</button>
                 </div>
             </div>
-            
-            <div class="sticky top-[70px] z-40 w-full flex justify-center mb-8">
-                <div class="w-full max-w-4xl flex justify-between gap-2 px-4 py-2 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-slate-100 dark:border-border-dark">
-                    <div class="flex gap-1 items-center flex-wrap">
-                        <button onclick="formatDoc('bold')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_bold</span></button>
-                        <button onclick="formatDoc('italic')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_italic</span></button>
-                        <button onclick="formatDoc('underline')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_underlined</span></button>
-                        <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-                        <button onclick="formatDoc('justifyRight')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_align_right</span></button>
-                        <button onclick="formatDoc('justifyCenter')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_align_center</span></button>
-                        <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-                        <button onclick="formatDoc('insertUnorderedList')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_list_bulleted</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-full flex justify-center pb-20">
-                <div id="outputArea" contenteditable="true" oninput="updateEditorStats(); autoSave()" class="paper-canvas w-full max-w-[840px] bg-white dark:bg-surface-dark rounded-sm p-12 md:p-16 text-slate-800 dark:text-slate-200 text-lg leading-relaxed outline-none whitespace-pre-wrap"></div>
-                <div class="fixed bottom-6 bg-white/90 dark:bg-surface-dark/90 px-6 py-2 rounded-full shadow-lg border flex items-center gap-6 text-sm">
-                    <div class="flex items-center gap-2"><span id="saveStatusIcon" class="material-symbols-outlined text-[18px] text-green-500">check_circle</span> <span id="saveStatusText">נשמר בענן</span></div>
-                    <span id="wordCount">0 מילים</span>
-                </div>
-            </div>
+            <div class="w-full flex justify-center pb-20"><div id="outputArea" contenteditable="true" oninput="updateEditorStats(); autoSave()" class="paper-canvas w-full max-w-[840px] bg-white dark:bg-surface-dark rounded-sm p-12 md:p-16 text-slate-800 dark:text-slate-200 text-lg leading-relaxed outline-none whitespace-pre-wrap"></div><div class="fixed bottom-6 bg-white/90 dark:bg-surface-dark/90 px-6 py-2 rounded-full shadow-lg border flex items-center gap-6 text-sm"><div class="flex items-center gap-2"><span id="saveStatusIcon" class="material-symbols-outlined text-[18px] text-green-500">check_circle</span> <span id="saveStatusText">נשמר בענן</span></div><span id="wordCount">0 מילים</span></div></div>
         </div>
 
         <div id="view-archive" class="hidden animate-fade-in">
@@ -254,7 +220,7 @@
 <div id="app-vision" class="app-container hidden flex-1 mr-20 flex flex-col min-h-screen">
     <header class="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-10 py-5"><h2 class="text-2xl font-black flex items-center gap-3"><span class="material-symbols-outlined text-primary">visibility</span> מנתח תמונות חכם</h2></header>
     <main class="flex-1 w-full max-w-4xl mx-auto p-8">
-        <div class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-xl"><p class="text-slate-500 mb-6 text-center">העלה תמונה ובקש מ-Gemini לנתח אותה.</p><div class="flex flex-col gap-6"><div id="visionDropZone" onclick="document.getElementById('visionFile').click()" class="h-64 rounded-2xl border-2 border-dashed border-slate-200 dark:border-border-dark flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"><img id="visionPreview" class="hidden max-h-full rounded-lg" /><div id="visionPlaceholder" class="flex flex-col items-center gap-3"><span class="material-symbols-outlined text-5xl text-slate-300">add_a_photo</span><p class="font-bold">לחץ להעלאת תמונה</p></div></div><input type="file" id="visionFile" class="hidden" accept="image/*" onchange="previewVisionImage(this)"><textarea id="visionPrompt" class="w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4 h-32" placeholder="מה תרצה לדעת על התמונה?"></textarea><button onclick="runVisionAnalysis()" class="bg-primary text-white h-12 rounded-xl font-bold text-lg hover:scale-[1.02] transition-transform">נתח עכשיו</button><div id="visionResult" class="hidden mt-6 p-6 bg-slate-50 dark:bg-background-dark rounded-xl border dark:border-border-dark min-h-[100px] whitespace-pre-wrap leading-relaxed"></div></div></div>
+        <div class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-xl"><p class="text-slate-500 mb-6 text-center text-slate-900 dark:text-slate-100">העלה תמונה ובקש מ-Gemini לנתח אותה.</p><div class="flex flex-col gap-6"><div id="visionDropZone" onclick="document.getElementById('visionFile').click()" class="h-64 rounded-2xl border-2 border-dashed border-slate-200 dark:border-border-dark flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"><img id="visionPreview" class="hidden max-h-full rounded-lg" /><div id="visionPlaceholder" class="flex flex-col items-center gap-3"><span class="material-symbols-outlined text-5xl text-slate-300">add_a_photo</span><p class="font-bold text-slate-900 dark:text-white">לחץ להעלאת תמונה</p></div></div><input type="file" id="visionFile" class="hidden" accept="image/*" onchange="previewVisionImage(this)"><textarea id="visionPrompt" class="w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4 h-32 text-slate-900 dark:text-white" placeholder="מה תרצה לדעת על התמונה?"></textarea><button onclick="runVisionAnalysis()" class="bg-primary text-white h-12 rounded-xl font-bold text-lg hover:scale-[1.02] transition-transform">נתח עכשיו</button><div id="visionResult" class="hidden mt-6 p-6 bg-slate-50 dark:bg-background-dark rounded-xl border dark:border-border-dark min-h-[100px] whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-white"></div></div></div>
     </main>
 </div>
 
@@ -277,14 +243,33 @@
             <div class="flex justify-center mt-6"><button id="torahGenerateBtn" onclick="runTorahAnalysis()" class="bg-torani-blue hover:bg-blue-900 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg flex items-center gap-3 transition-all"><span class="material-symbols-outlined">psychology</span><span id="torahBtnText">הפקת שאלות מן המציאות</span></button></div>
         </div>
         <div id="torahResultCard" class="hidden animate-fade-in bg-white dark:bg-surface-dark rounded-3xl border border-slate-200 dark:border-border-dark shadow-xl p-10">
-            <div class="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-border-dark pb-4">
-                <h3 class="text-xl font-display font-bold flex items-center gap-2 text-slate-900 dark:text-white"><span class="material-symbols-outlined text-amber-600">lightbulb</span> השאלות שהופקו:</h3>
-                <div class="flex gap-2">
-                    <button onclick="copyTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="העתק"><span class="material-symbols-outlined text-xl">content_copy</span></button>
-                    <button onclick="downloadTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="הורד"><span class="material-symbols-outlined text-xl">download</span></button>
-                </div>
-            </div>
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-border-dark pb-4"><h3 class="text-xl font-display font-bold flex items-center gap-2 text-slate-900 dark:text-white"><span class="material-symbols-outlined text-amber-600">lightbulb</span> השאלות שהופקו:</h3><div class="flex gap-2"><button onclick="copyTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="העתק"><span class="material-symbols-outlined text-xl text-slate-900 dark:text-white">content_copy</span></button><button onclick="downloadTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="הורד"><span class="material-symbols-outlined text-xl text-slate-900 dark:text-white">download</span></button></div></div>
             <div id="torahOutput" class="torani-output prose prose-slate dark:prose-invert max-w-none text-right font-torani text-slate-800 dark:text-slate-200"></div>
+        </div>
+    </main>
+</div>
+
+<!-- APP: TORAH EDIT (NEW) -->
+<div id="app-torah-edit" class="app-container hidden flex-1 mr-20 flex flex-col min-h-screen bg-[#f3f4f6] dark:bg-background-dark">
+    <header class="bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-border-dark px-10 py-6">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="size-12 bg-torani-gold/10 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-torani-gold dark:text-amber-300"><span class="material-symbols-outlined text-3xl">history_edu</span></div>
+                <div><h2 class="text-2xl font-display font-bold leading-none text-slate-900 dark:text-white">ניסוח מאמרים תורניים</h2><p class="text-sm text-slate-500 mt-1">שיפור רהיטות, סידור מבנה ועריכת לשון קודש</p></div>
+            </div>
+            <p class="text-xs font-bold tracking-widest text-slate-400">בס"ד</p>
+        </div>
+    </header>
+    <main class="flex-1 w-full max-w-5xl mx-auto p-8 space-y-8">
+        <div class="bg-white dark:bg-surface-dark rounded-3xl p-8 border border-slate-200 dark:border-border-dark shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-torani-gold"></div>
+            <label class="block text-lg font-display font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white"><span class="material-symbols-outlined text-torani-gold">edit_square</span> הטקסט המקורי לעריכה:</label>
+            <textarea id="torahEditInput" class="w-full min-h-[300px] bg-slate-50 dark:bg-background-dark border-slate-200 dark:border-border-dark rounded-2xl p-6 text-lg focus:ring-torani-gold focus:border-torani-gold transition-all resize-none custom-scrollbar text-slate-900 dark:text-white" placeholder="הדבק כאן את הטיוטה של המאמר, השיעור או הסוגיה..."></textarea>
+            <div class="flex justify-center mt-6"><button id="torahEditGenerateBtn" onclick="runTorahEditAnalysis()" class="bg-torani-gold hover:bg-amber-700 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg flex items-center gap-3 transition-all"><span class="material-symbols-outlined">auto_fix_high</span><span id="torahEditBtnText">ערוך ונסח מחדש</span></button></div>
+        </div>
+        <div id="torahEditResultCard" class="hidden animate-fade-in bg-white dark:bg-surface-dark rounded-3xl border border-slate-200 dark:border-border-dark shadow-xl p-10">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-border-dark pb-4"><h3 class="text-xl font-display font-bold flex items-center gap-2 text-slate-900 dark:text-white"><span class="material-symbols-outlined text-torani-gold">task_alt</span> הטקסט הערוך:</h3><div class="flex gap-2"><button onclick="copyTorahEditOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="העתק"><span class="material-symbols-outlined text-xl text-slate-900 dark:text-white">content_copy</span></button><button onclick="downloadTorahEditOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="הורד"><span class="material-symbols-outlined text-xl text-slate-900 dark:text-white">download</span></button></div></div>
+            <div id="torahEditOutput" class="prose prose-slate dark:prose-invert max-w-none text-right font-torani text-slate-800 dark:text-slate-200 text-xl leading-relaxed"></div>
         </div>
     </main>
 </div>
@@ -309,7 +294,13 @@
         </section>
         <section class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-sm space-y-6">
             <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">hub</span> הגדרות מודלים</h3>
-            <div class="space-y-4"><label class="block"><span class="text-sm font-bold text-slate-500 dark:text-slate-400">מודל גלובלי (ברירת מחדל לכל הכלים)</span><select id="globalModelSelect" class="mt-1 w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-white p-3"></select></label><hr class="border-slate-100 dark:border-border-dark"><div class="flex items-center justify-between"><span class="text-sm font-bold">מודלים ספציפיים לכלים (אופציונלי):</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><label><span class="text-xs text-slate-500">תמלול</span><select id="model-transcriber" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">ניתוח תמונות</span><select id="model-vision" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">עריכה תורנית</span><select id="model-torah" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">עוזר טקסט</span><select id="model-chat" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label></div></div>
+            <div class="space-y-4"><label class="block"><span class="text-sm font-bold text-slate-500 dark:text-slate-400">מודל גלובלי (ברירת מחדל לכל הכלים)</span><select id="globalModelSelect" class="mt-1 w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-white p-3"></select></label><hr class="border-slate-100 dark:border-border-dark"><div class="flex items-center justify-between"><span class="text-sm font-bold text-slate-900 dark:text-white">מודלים ספציפיים לכלים (אופציונלי):</span></div><div id="modelSelectContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label><span class="text-xs text-slate-500">תמלול</span><select id="model-transcriber" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500">ניתוח תמונות</span><select id="model-vision" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500">מחודדין (שאלות)</span><select id="model-torah" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500">ניסוח מאמרים</span><select id="model-torah-edit" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500">עוזר טקסט</span><select id="model-chat" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+            </div></div>
         </section>
         <button onclick="saveAllSettings()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">שמור הגדרות</button>
     </main>
@@ -318,202 +309,288 @@
 <div id="toast-container" class="fixed bottom-5 left-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
 <script>
-// --- Globals ---
+// --- Configuration & Settings Management ---
 const BASE_URL = "https://generativelanguage.googleapis.com";
 let settings = {
     apiKey: localStorage.getItem('gemini_api_key') || '',
     globalModel: localStorage.getItem('gemini_global_model') || '',
     toolModels: JSON.parse(localStorage.getItem('gemini_tool_models') || '{}')
 };
-let selectedFile = null, currentDocId = null, abortController = null, saveTimeout = null;
-let audioCtx, analyser, visualizerDataArray, visualizerCanvasCtx, visualizerReqId, mediaRecorder, audioChunks = [];
 
-// --- Settings ---
-function saveAllSettings() {
-    settings.apiKey = document.getElementById('globalApiKey').value;
-    settings.globalModel = document.getElementById('globalModelSelect').value;
-    settings.toolModels = {
-        transcriber: document.getElementById('model-transcriber').value,
-        vision: document.getElementById('model-vision').value,
-        torah: document.getElementById('model-torah').value,
-        chat: document.getElementById('model-chat').value
-    };
-    localStorage.setItem('gemini_api_key', settings.apiKey);
-    localStorage.setItem('gemini_global_model', settings.globalModel);
-    localStorage.setItem('gemini_tool_models', JSON.stringify(settings.toolModels));
-    showToast("ההגדרות נשמרו בהצלחה", "success");
-}
-function getEffectiveModel(t) { return settings.toolModels[t] || settings.globalModel || "gemini-2.5-flash-preview-09-2025"; }
-async function fetchGlobalModels() {
-    const key = document.getElementById('globalApiKey').value;
-    if(!key) return showToast("הזן מפתח API", "error");
-    document.getElementById('globalFetchIcon').classList.add('animate-spin');
-    try {
-        const r = await fetch(`${BASE_URL}/v1beta/models?key=${key}`);
-        const d = await r.json();
-        const models = d.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
-        ['globalModelSelect', 'model-transcriber', 'model-vision', 'model-torah', 'model-chat'].forEach(id => {
-            const el = document.getElementById(id); el.innerHTML = (id !== 'globalModelSelect') ? '<option value="">השתמש בגלובלי</option>' : '';
-            models.forEach(m => el.add(new Option(m.displayName, m.name.replace('models/',''))));
-        });
-        showToast("רשימת מודלים עודכנה", "success");
-    } catch(e) { showToast("שגיאה בטעינה", "error"); }
-    finally { document.getElementById('globalFetchIcon').classList.remove('animate-spin'); }
+// --- Initialization & Theme ---
+window.onload = () => {
+    if(localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.getElementById('globalThemeIcon').innerText = 'light_mode';
+    }
+    const drop = document.getElementById('dropZone');
+    if (drop) {
+        drop.onclick = () => document.getElementById('hiddenFileInput').click();
+        document.getElementById('hiddenFileInput').onchange = e => { 
+            selectedFile = e.target.files[0]; 
+            document.getElementById('fileNameDisplay').innerText = selectedFile.name; 
+            const url = URL.createObjectURL(selectedFile);
+            document.getElementById('filePreview').src = url;
+            document.getElementById('previewContainer').classList.remove('hidden');
+        };
+    }
+    if(settings.apiKey) fetchGlobalModels();
+};
+
+function toggleTheme() {
+    const html = document.documentElement;
+    html.classList.toggle('dark');
+    const isDark = html.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    document.getElementById('globalThemeIcon').innerText = isDark ? 'light_mode' : 'dark_mode';
 }
 
-// --- DB ---
-function openDB() { return new Promise(res => { const r = indexedDB.open("GeminiTranscriberDB", 1); r.onupgradeneeded = e => e.target.result.createObjectStore("transcriptions", {keyPath: "id"}); r.onsuccess = e => res(e.target.result); }); }
-async function saveToDB(f,t,id=null) { const db = await openDB(); const item = {id: id || Date.now(), filename:f, text:t, date: new Date().toLocaleString(), preview: t.substring(0, 100).replace(/<[^>]*>/g, '')}; await db.transaction("transcriptions","readwrite").objectStore("transcriptions").put(item); return item.id; }
-async function getAllFromDB() { const db = await openDB(); return new Promise(res => db.transaction("transcriptions").objectStore("transcriptions").getAll().onsuccess = e => res(e.target.result)); }
-async function clearAllHistory() { if(!confirm("למחוק הכל?")) return; const db = await openDB(); db.transaction("transcriptions","readwrite").objectStore("transcriptions").clear().onsuccess = () => renderHistory(); }
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const configs = { success: { bg: 'bg-green-500' }, error: { bg: 'bg-red-500' }, info: { bg: 'bg-blue-500' } };
+    const config = configs[type] || configs.info;
+    toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${config.bg} text-white min-w-[250px] pointer-events-auto transition-all`;
+    toast.innerHTML = `<span class="material-symbols-outlined">info</span><span class="text-sm font-medium flex-1">${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('opacity-0'); toast.addEventListener('transitionend', () => toast.remove()); }, 4000);
+}
 
 // --- App Navigation ---
-function switchApp(id) {
-    document.querySelectorAll('.app-container').forEach(a => a.classList.add('hidden'));
-    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('app-'+id).classList.remove('hidden');
-    document.getElementById('side-'+id).classList.add('active');
-    if(id === 'settings') document.getElementById('globalApiKey').value = settings.apiKey;
+function switchApp(appId) {
+    document.querySelectorAll('.app-container').forEach(app => app.classList.add('hidden'));
+    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+    document.getElementById('app-' + appId).classList.remove('hidden');
+    document.getElementById('side-' + appId).classList.add('active');
+    
+    if(appId === 'settings') {
+        document.getElementById('globalApiKey').value = settings.apiKey;
+    }
 }
+
 function switchTab(t) {
     document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
-    document.getElementById('view-'+t).classList.remove('hidden');
+    document.getElementById('view-' + t).classList.remove('hidden');
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-primary'));
-    document.getElementById('btn-'+t).classList.add('active', 'text-primary');
+    document.getElementById('btn-' + t).classList.add('active', 'text-primary');
     if(t==='archive') renderHistory();
 }
 
-// --- UI Helpers ---
-function showToast(m,t='info') {
-    const c = document.getElementById('toast-container'), toast = document.createElement('div');
-    const bg = t==='success' ? 'bg-green-500' : (t==='error' ? 'bg-red-500' : 'bg-blue-500');
-    toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${bg} text-white min-w-[250px]`;
-    toast.innerHTML = `<span class="material-symbols-outlined">info</span><span class="text-sm font-medium">${m}</span>`;
-    c.appendChild(toast); setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
-}
-function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
-function toggleGlobalKeyVisibility() { const i = document.getElementById('globalApiKey'); i.type = i.type==='password'?'text':'password'; }
+// --- Settings Functions ---
+function saveAllSettings() {
+    settings.apiKey = document.getElementById('globalApiKey').value;
+    settings.globalModel = document.getElementById('globalModelSelect').value;
+    
+    const toolSelects = document.querySelectorAll('.model-select');
+    settings.toolModels = {};
+    toolSelects.forEach(sel => {
+        const toolId = sel.id.replace('model-', '');
+        settings.toolModels[toolId] = sel.value;
+    });
 
-// --- Audio Recording & Visualizer ---
-function startVisualizer(s) {
-    const v = document.getElementById('visualizer'); visualizerCanvasCtx = v.getContext('2d');
+    localStorage.setItem('gemini_api_key', settings.apiKey);
+    localStorage.setItem('gemini_global_model', settings.globalModel);
+    localStorage.setItem('gemini_tool_models', JSON.stringify(settings.toolModels));
+    showToast("ההגדרות נשמרו", "success");
+}
+
+function getEffectiveModel(toolId) {
+    return settings.toolModels[toolId] || settings.globalModel || "gemini-2.5-flash-preview-09-2025";
+}
+
+async function fetchGlobalModels() {
+    const key = document.getElementById('globalApiKey').value || settings.apiKey;
+    if(!key) return;
+    const fetchIcon = document.getElementById('globalFetchIcon');
+    if(fetchIcon) fetchIcon.classList.add('animate-spin');
+    try {
+        const res = await fetch(`${BASE_URL}/v1beta/models?key=${key}`);
+        const data = await res.json();
+        const models = data.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
+        
+        const selects = ['globalModelSelect', 'model-transcriber', 'model-vision', 'model-torah', 'model-torah-edit', 'model-chat'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const currentVal = el.value || (id.startsWith('model-') ? settings.toolModels[id.split('-')[1]] : settings.globalModel);
+            el.innerHTML = (id !== 'globalModelSelect') ? '<option value="">השתמש בגלובלי</option>' : '';
+            models.forEach(m => {
+                const name = m.name.replace('models/', '');
+                el.add(new Option(m.displayName, name));
+            });
+            if(currentVal) el.value = currentVal;
+        });
+        showToast("מודלים עודכנו", "success");
+    } catch(e) { showToast("שגיאה בטעינת מודלים", "error"); }
+    finally { if(fetchIcon) fetchIcon.classList.remove('animate-spin'); }
+}
+
+function toggleGlobalKeyVisibility() {
+    const input = document.getElementById('globalApiKey');
+    input.type = input.type === "password" ? "text" : "password";
+}
+
+// --- Transcription Logic ---
+let selectedFile = null, currentDocId = null, abortController = null, saveTimeout = null;
+let audioCtx, analyser, visualizerDataArray, visualizerCanvasCtx, visualizerReqId, mediaRecorder, audioChunks = [];
+
+function startVisualizer(stream) {
+    const v = document.getElementById('visualizer');
+    visualizerCanvasCtx = v.getContext('2d');
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const src = audioCtx.createMediaStreamSource(s); analyser = audioCtx.createAnalyser(); analyser.fftSize = 256; src.connect(analyser);
-    visualizerDataArray = new Uint8Array(analyser.frequencyBinCount); v.classList.remove('hidden'); document.getElementById('micIconContainer').classList.add('hidden');
-    const draw = () => { visualizerReqId = requestAnimationFrame(draw); analyser.getByteFrequencyData(visualizerDataArray); visualizerCanvasCtx.clearRect(0,0,v.width,v.height); visualizerCanvasCtx.fillStyle = '#ef4444'; visualizerDataArray.forEach((val, i) => visualizerCanvasCtx.fillRect(i*2, v.height - val/3, 1.5, val/3)); };
+    const src = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    src.connect(analyser);
+    visualizerDataArray = new Uint8Array(analyser.frequencyBinCount);
+    v.classList.remove('hidden');
+    document.getElementById('micIconContainer').classList.add('hidden');
+    const draw = () => {
+        visualizerReqId = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(visualizerDataArray);
+        visualizerCanvasCtx.clearRect(0,0,v.width,v.height);
+        visualizerCanvasCtx.fillStyle = '#ef4444';
+        visualizerDataArray.forEach((val, i) => { visualizerCanvasCtx.fillRect(i*2, v.height - val/3, 1.5, val/3); });
+    };
     draw();
 }
+
 function toggleRecording() {
     if(!mediaRecorder || mediaRecorder.state === 'inactive') {
         navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-            startVisualizer(s); mediaRecorder = new MediaRecorder(s); audioChunks = [];
+            startVisualizer(s);
+            mediaRecorder = new MediaRecorder(s);
+            audioChunks = [];
             mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
             mediaRecorder.onstop = () => {
                 selectedFile = new File([new Blob(audioChunks, {type:'audio/wav'})], "recording.wav", {type:"audio/wav"});
-                document.getElementById('fileNameDisplay').innerText = selectedFile.name; cancelAnimationFrame(visualizerReqId);
-                document.getElementById('visualizer').classList.add('hidden'); document.getElementById('micIconContainer').classList.remove('hidden'); s.getTracks().forEach(t => t.stop());
+                document.getElementById('fileNameDisplay').innerText = selectedFile.name;
+                cancelAnimationFrame(visualizerReqId);
+                document.getElementById('visualizer').classList.add('hidden');
+                document.getElementById('micIconContainer').classList.remove('hidden');
+                s.getTracks().forEach(t => t.stop());
             };
-            mediaRecorder.start(); document.getElementById('recordText').innerText = "עצור";
-        });
-    } else { mediaRecorder.stop(); document.getElementById('recordText').innerText = "התחל להקליט"; }
+            mediaRecorder.start();
+            document.getElementById('recordText').innerText = "עצור";
+        }).catch(() => showToast("אין גישה למיקרופון", "error"));
+    } else {
+        mediaRecorder.stop();
+        document.getElementById('recordText').innerText = "התחל להקליט";
+    }
 }
 
-// --- Core Logic (Transcriber, Vision, Torah, Chat) ---
 async function runTranscriptionProcess() {
-    const k = settings.apiKey, m = getEffectiveModel('transcriber'); if(!k || !selectedFile) return showToast("בדוק הגדרות", "error");
-    const bar = document.getElementById('progressBar'); document.getElementById('processSection').classList.remove('hidden'); abortController = new AbortController();
+    const key = settings.apiKey, model = getEffectiveModel('transcriber');
+    if(!key || !selectedFile) return showToast("בדוק הגדרות והעלאת קובץ", "error");
+    const bar = document.getElementById('progressBar'), status = document.getElementById('statusText');
+    document.getElementById('processSection').classList.remove('hidden');
+    abortController = new AbortController();
     try {
-        bar.style.width = "20%";
-        const init = await fetch(BASE_URL + "/upload/v1beta/files?key=" + k, { method: 'POST', body: JSON.stringify({file:{display_name:selectedFile.name}}), signal: abortController.signal });
+        status.innerText = "מעלה..."; bar.style.width = "20%";
+        const init = await fetch(BASE_URL + "/upload/v1beta/files?key=" + key, { method: 'POST', body: JSON.stringify({file:{display_name:selectedFile.name}}), signal: abortController.signal });
         const uploadUrl = init.headers.get('X-Goog-Upload-URL');
         const uploadRes = await fetch(uploadUrl, { method: 'POST', body: selectedFile, signal: abortController.signal });
         const fData = await uploadRes.json();
         let st = "PROCESSING";
-        while(st === "PROCESSING") { await new Promise(r => setTimeout(r, 2000)); const c = await fetch(fData.file.uri + "?key=" + k); const d = await c.json(); st = d.state; }
-        const gen = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:document.getElementById('promptInput').value||"Transcribe."},{file_data:{mime_type:selectedFile.type,file_uri:fData.file.uri}}]}]}), signal: abortController.signal });
-        const res = await gen.json(); const txt = res.candidates[0].content.parts[0].text;
-        const html = txt.split('\n').map(l => `<p>${l}</p>`).join('');
+        while(st === "PROCESSING") { await new Promise(r => setTimeout(r, 2000)); const c = await fetch(fData.file.uri + "?key=" + key); const d = await c.json(); st = d.state; }
+        status.innerText = "מתמלל..."; bar.style.width = "80%";
+        const gen = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: document.getElementById('promptInput').value || "Transcribe." }, { file_data: { mime_type: selectedFile.type, file_uri: fData.file.uri } }] }] }), signal: abortController.signal });
+        const res = await gen.json();
+        const html = res.candidates[0].content.parts[0].text.split('\n').map(l => `<p>${l}</p>`).join('');
         document.getElementById('outputArea').innerHTML = html; document.getElementById('currentFileName').innerText = selectedFile.name; currentDocId = await saveToDB(selectedFile.name, html); switchTab('editor');
-    } catch(e) { showToast("שגיאה בתמלול", "error"); } finally { document.getElementById('processSection').classList.add('hidden'); }
+    } catch(e) { showToast("שגיאה בתהליך", "error"); }
+    finally { document.getElementById('processSection').classList.add('hidden'); }
 }
+function cancelProcess() { if(abortController) abortController.abort(); }
+
+// --- Vision Logic ---
+function previewVisionImage(i) {
+    const f = i.files[0];
+    if(f) {
+        const r = new FileReader();
+        r.onload = e => { 
+            document.getElementById('visionPreview').src = e.target.result; 
+            document.getElementById('visionPreview').classList.remove('hidden'); 
+            document.getElementById('visionPlaceholder').classList.add('hidden'); 
+        };
+        r.readAsDataURL(f);
+    }
+}
+
 async function runVisionAnalysis() {
-    const k = settings.apiKey, m = getEffectiveModel('vision'), f = document.getElementById('visionFile').files[0], p = document.getElementById('visionPrompt').value || "Analyze this image.", resDiv = document.getElementById('visionResult');
-    if(!k || !f) return showToast("חסר מפתח או תמונה", "error");
+    const key = settings.apiKey, model = getEffectiveModel('vision'), f = document.getElementById('visionFile').files[0], p = document.getElementById('visionPrompt').value || "Analyze this image.", resDiv = document.getElementById('visionResult');
+    if(!key || !f) return showToast("חסר מפתח או תמונה", "error");
     resDiv.innerText = "מנתח..."; resDiv.classList.remove('hidden');
     const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = async () => {
         try {
-            const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:p},{inline_data:{mime_type:f.type,data:reader.result.split(',')[1]}}]}]}) });
-            const d = await r.json(); resDiv.innerText = d.candidates[0].content.parts[0].text;
+            const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: p }, { inline_data: { mime_type: f.type, data: reader.result.split(',')[1] } }] }] }) });
+            const data = await res.json(); resDiv.innerText = data.candidates[0].content.parts[0].text;
         } catch(e) { resDiv.innerText = "שגיאה בניתוח."; }
     };
 }
+
+// --- Torah (Mahudadin) Logic ---
 async function runTorahAnalysis() {
-    const k = settings.apiKey, m = getEffectiveModel('torah'), txt = document.getElementById('torahInput').value, out = document.getElementById('torahOutput'), card = document.getElementById('torahResultCard');
-    if(!k || !txt) return showToast("חסר מפתח או מאמר", "error");
+    const key = settings.apiKey, model = getEffectiveModel('torah'), txt = document.getElementById('torahInput').value;
+    if(!key || !txt) return showToast("חסר מפתח או מאמר", "error");
     document.getElementById('torahBtnText').innerText = "מעבד...";
     try {
-        const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text: "אתה עורך תורני. הפק 6-8 שאלות מן המציאות מהמאמר הבא. התחל כל שאלה בסימן ♦.\n\n" + txt}]}]}) });
-        const d = await r.json(); out.innerHTML = marked.parse(d.candidates[0].content.parts[0].text); card.classList.remove('hidden');
-    } catch(e) { showToast("שגיאה", "error"); } finally { document.getElementById('torahBtnText').innerText = "הפקת שאלות מן המציאות"; }
+        const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: "אתה עורך תורני. הפק 6-8 שאלות מן המציאות מהמאמר הבא. התחל כל שאלה בסימן ♦.\n\n" + txt }] }] }) });
+        const data = await res.json(); document.getElementById('torahOutput').innerHTML = marked.parse(data.candidates[0].content.parts[0].text); document.getElementById('torahResultCard').classList.remove('hidden');
+    } catch(e) { showToast("שגיאה", "error"); }
+    finally { document.getElementById('torahBtnText').innerText = "הפקת שאלות מן המציאות"; }
 }
-async function sendChatMessage() {
-    const k = settings.apiKey, m = getEffectiveModel('chat'), inp = document.getElementById('chatInput'), hist = document.getElementById('chatHistory'), msg = inp.value.trim();
-    if(!k || !msg) return; hist.innerHTML += `<div class="self-start bg-primary text-white p-3 rounded-2xl max-w-[80%]">${msg}</div>`; inp.value = "";
+function copyTorahOutput() { navigator.clipboard.writeText(document.getElementById('torahOutput').innerText); showToast("הועתק", "success"); }
+function downloadTorahOutput() { const b = new Blob([document.getElementById('torahOutput').innerText], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'mahudadin_questions.txt'; a.click(); }
+
+// --- Torah Edit (New Tool) Logic ---
+async function runTorahEditAnalysis() {
+    const key = settings.apiKey, model = getEffectiveModel('torah-edit'), txt = document.getElementById('torahEditInput').value;
+    if(!key || !txt) return showToast("חסר מפתח או מאמר", "error");
+    document.getElementById('torahEditBtnText').innerText = "מעבד...";
+    const prompt = `
+    תפקידך: עורך תורני מומחה.
+    המשימה: נסח מחדש ושפר את המאמר התורני המצורף.
+    דרישות:
+    1. שמור על התוכן ההלכתי והסברות המקוריות ללא שינוי.
+    2. שפר את זרימת המשפטים, הרהיטות והתחביר.
+    3. השתמש בלשון קודש מכובדת המתאימה לעולם התורה (סגנון עולם הישיבות או כתבי עת תורניים).
+    4. סדר את הטקסט בפסקאות הגיוניות.
+    5. אם יש ראשי תיבות לא ברורים, פתח אותם במידת הצורך לזרימת הקריאה.
+    
+    הפק את הטקסט הערוך בלבד, ללא הקדמות.`;
     try {
-        const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:msg}]}]}) });
-        const d = await r.json(); hist.innerHTML += `<div class="self-end bg-white dark:bg-surface-dark p-3 rounded-2xl max-w-[80%] border dark:border-border-dark">${d.candidates[0].content.parts[0].text}</div>`; hist.scrollTop = hist.scrollHeight;
+        const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt + "\n\n" + txt }] }] }) });
+        const data = await res.json(); document.getElementById('torahEditOutput').innerHTML = marked.parse(data.candidates[0].content.parts[0].text); document.getElementById('torahEditResultCard').classList.remove('hidden');
+    } catch(e) { showToast("שגיאה בניסוח", "error"); }
+    finally { document.getElementById('torahEditBtnText').innerText = "ערוך ונסח מחדש"; }
+}
+function copyTorahEditOutput() { navigator.clipboard.writeText(document.getElementById('torahEditOutput').innerText); showToast("הועתק", "success"); }
+function downloadTorahEditOutput() { const b = new Blob([document.getElementById('torahEditOutput').innerText], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'torah_edited_article.txt'; a.click(); }
+
+// --- Chat Logic ---
+async function sendChatMessage() {
+    const key = settings.apiKey, model = getEffectiveModel('chat'), inp = document.getElementById('chatInput'), hist = document.getElementById('chatHistory'), msg = inp.value.trim();
+    if(!key || !msg) return;
+    hist.innerHTML += `<div class="self-start bg-primary text-white p-3 rounded-2xl max-w-[80%]">${msg}</div>`; inp.value = "";
+    try {
+        const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }] }) });
+        const data = await res.json(); hist.innerHTML += `<div class="self-end bg-white dark:bg-surface-dark p-3 rounded-2xl max-w-[80%] border dark:border-border-dark">${data.candidates[0].content.parts[0].text}</div>`; hist.scrollTop = hist.scrollHeight;
     } catch(e) { showToast("שגיאה", "error"); }
 }
 
-// --- Specific Torah/Utility Functions (The Fixed Part) ---
-function copyTorahOutput() {
-    const text = document.getElementById('torahOutput').innerText;
-    if(!text) return;
-    navigator.clipboard.writeText(text); showToast("הועתק ללוח", "success");
-}
-function downloadTorahOutput() {
-    const text = document.getElementById('torahOutput').innerText;
-    if(!text) return;
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'mahudadin_questions.txt'; link.click();
-}
-
-// --- Editor Tools ---
+// --- DB & Editor Tools ---
+function openDB() { return new Promise(res => { const r = indexedDB.open("GeminiTranscriberDB", 1); r.onupgradeneeded = e => e.target.result.createObjectStore("transcriptions", {keyPath: "id"}); r.onsuccess = e => res(e.target.result); }); }
+async function saveToDB(f,t,id=null) { const db = await openDB(); const item = {id: id || Date.now(), filename:f, text:t, date: new Date().toLocaleString(), preview: t.substring(0, 100).replace(/<[^>]*>/g, '')}; await db.transaction("transcriptions","readwrite").objectStore("transcriptions").put(item); return item.id; }
+async function getAllFromDB() { const db = await openDB(); return new Promise(res => db.transaction("transcriptions").objectStore("transcriptions").getAll().onsuccess = e => res(e.target.result)); }
+async function clearAllHistory() { if(!confirm("למחוק הכל?")) return; const db = await openDB(); db.transaction("transcriptions","readwrite").objectStore("transcriptions").clear().onsuccess = () => renderHistory(); }
 function formatDoc(cmd, val=null) { document.execCommand(cmd, false, val); }
-function updateEditorStats() { document.getElementById('wordCount').innerText = document.getElementById('outputArea').innerText.trim().split(/\s+/).length + " מילים"; }
-function autoSave() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(async () => {
-        document.getElementById('saveStatusIcon').innerText = 'sync';
-        await saveToDB(document.getElementById('currentFileName').innerText, document.getElementById('outputArea').innerHTML, currentDocId);
-        document.getElementById('saveStatusIcon').innerText = 'check_circle';
-    }, 1000);
-}
+function updateEditorStats() { const area = document.getElementById('outputArea'); document.getElementById('wordCount').innerText = (area.innerText.trim() ? area.innerText.trim().split(/\s+/).length : 0) + " מילים"; }
+function autoSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(async () => { document.getElementById('saveStatusIcon').innerText = 'sync'; await saveToDB(document.getElementById('currentFileName').innerText, document.getElementById('outputArea').innerHTML, currentDocId); document.getElementById('saveStatusIcon').innerText = 'check_circle'; }, 1000); }
 function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('outputArea').innerText); showToast("הועתק", "success"); }
-function downloadText() {
-    const b = new Blob([document.getElementById('outputArea').innerText], {type:'text/plain'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = document.getElementById('currentFileName').innerText + ".txt"; a.click();
-}
-
-async function renderHistory() {
-    const h = await getAllFromDB();
-    document.getElementById('historyTableBody').innerHTML = h.reverse().map(i => `<tr class="border-b dark:border-border-dark cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"><td class="p-4" onclick="loadDoc(${i.id})">${i.filename}</td><td class="p-4">${i.date}</td></tr>`).join('') || '<tr><td colspan="2" class="p-10 text-center text-slate-400">הארכיון ריק</td></tr>';
-}
-async function loadDoc(id) {
-    const h = await getAllFromDB(); const i = h.find(x => x.id === id);
-    if(i) { currentDocId = i.id; document.getElementById('outputArea').innerHTML = i.text; document.getElementById('currentFileName').innerText = i.filename; switchTab('editor'); updateEditorStats(); }
-}
-
-function previewVisionImage(i) {
-    const f = i.files[0]; if(f) { const r = new FileReader(); r.onload = e => { document.getElementById('visionPreview').src = e.target.result; document.getElementById('visionPreview').classList.remove('hidden'); document.getElementById('visionPlaceholder').classList.add('hidden'); }; r.readAsDataURL(f); }
-}
-
-window.onload = () => {
-    if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-    if(settings.apiKey) fetchGlobalModels();
-    document.getElementById('dropZone').onclick = () => document.getElementById('hiddenFileInput').click();
-    document.getElementById('hiddenFileInput').onchange = e => { selectedFile = e.target.files[0]; document.getElementById('fileNameDisplay').innerText = selectedFile.name; };
-};
+function downloadText() { const b = new Blob([document.getElementById('outputArea').innerText], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = document.getElementById('currentFileName').innerText + ".txt"; a.click(); }
+async function renderHistory() { const h = await getAllFromDB(); document.getElementById('historyTableBody').innerHTML = h.reverse().map(i => `<tr class="border-b dark:border-border-dark cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"><td class="p-4" onclick="loadDoc(${i.id})">${i.filename}</td><td class="p-4 text-xs opacity-50">${i.date}</td></tr>`).join('') || '<tr><td colspan="2" class="p-10 text-center text-slate-400">הארכיון ריק</td></tr>'; }
+async function loadDoc(id) { const h = await getAllFromDB(); const i = h.find(x => x.id === id); if(i) { currentDocId = i.id; document.getElementById('outputArea').innerHTML = i.text; document.getElementById('currentFileName').innerText = i.filename; switchTab('editor'); updateEditorStats(); } }
 </script>
 </body>
 </html>
