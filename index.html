@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="he">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AI Utility Hub - מרכז כלי ה-AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec", 
+                        "torani-blue": "#1e3a8a",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#192233",
+                        "border-dark": "#324467"
+                    },
+                    fontFamily: {
+                        "display": ["Heebo", "Inter", "sans-serif"],
+                        "body": ["Heebo", "Inter", "sans-serif"],
+                        "torani": ["Frank Ruhl Libre", "serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Heebo', sans-serif; }
+        .font-torani { font-family: 'Frank Ruhl Libre', serif; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #324467; }
+
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        .paper-canvas {
+            min-height: 800px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .dark .paper-canvas {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link.active {
+            color: #135bec;
+            border-bottom: 2px solid #135bec;
+        }
+        .dark .nav-link.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .sidebar-item.active {
+            background-color: #135bec;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(19, 91, 236, 0.3);
+        }
+
+        .torani-output li { 
+            position: relative; 
+            padding-right: 2rem; 
+            margin-bottom: 1.2rem; 
+            line-height: 1.6; 
+            font-size: 1.25rem; 
+            font-family: 'Frank Ruhl Libre', serif;
+        }
+        .torani-output li::before { 
+            content: "♦"; 
+            position: absolute; 
+            right: 0; 
+            color: #1e3a8a; 
+            font-weight: bold;
+        }
+
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { transform: opacity 0.3s; } }
+        .toast-enter { animation: slideIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+        .toast-exit { animation: fadeOut 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200 flex min-h-screen overflow-x-hidden">
+
+<!-- SIDEBAR -->
+<aside class="fixed right-0 top-0 h-full w-20 bg-white dark:bg-surface-dark border-l border-slate-200 dark:border-border-dark flex flex-col items-center py-8 gap-8 z-[60] shadow-xl">
+    <div class="size-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-4">
+        <span class="material-symbols-outlined text-3xl font-bold">bolt</span>
+    </div>
+    
+    <button onclick="switchApp('transcriber')" id="side-transcriber" class="sidebar-item active group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">graphic_eq</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">תמלול AI</span>
+    </button>
+
+    <button onclick="switchApp('vision')" id="side-vision" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">visibility</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">ניתוח תמונות</span>
+    </button>
+
+    <button onclick="switchApp('torah')" id="side-torah" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">auto_stories</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">עריכה תורנית</span>
+    </button>
+
+    <button onclick="switchApp('chat')" id="side-chat" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">chat_bubble</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">עוזר טקסט</span>
+    </button>
+
+    <button onclick="switchApp('settings')" id="side-settings" class="sidebar-item group relative size-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary transition-all duration-300">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="absolute right-full mr-4 px-2 py-1 rounded bg-slate-800 text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">הגדרות</span>
+    </button>
+
+    <div class="mt-auto flex flex-col gap-6">
+        <button onclick="toggleTheme()" class="size-10 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-primary/10 transition-colors">
+            <span id="globalThemeIcon" class="material-symbols-outlined text-xl">dark_mode</span>
+        </button>
+    </div>
+</aside>
+
+<!-- APP: TRANSCRIBER -->
+<div id="app-transcriber" class="app-container flex-1 mr-20 flex flex-col min-h-screen">
+    <header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-4 md:px-10 py-3 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-8 text-primary bg-primary/10 rounded-lg flex items-center justify-center"><span class="material-symbols-outlined">graphic_eq</span></div>
+                <h2 class="text-slate-900 dark:text-white text-lg font-bold tracking-tight hidden md:block">Gemini Transcriber Pro</h2>
+            </div>
+            <nav class="flex items-center gap-6 md:gap-9">
+                <button onclick="switchTab('creation')" id="btn-creation" class="nav-link active text-sm font-bold py-2 transition-colors">יצירה</button>
+                <button onclick="switchTab('editor')" id="btn-editor" class="nav-link text-slate-500 dark:text-slate-400 text-sm font-medium py-2 hover:text-primary transition-colors">עורך</button>
+                <button onclick="switchTab('archive')" id="btn-archive" class="nav-link text-slate-500 dark:text-slate-400 text-sm font-medium py-2 hover:text-primary transition-colors">ארכיון</button>
+            </nav>
+            <div class="size-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-300 dark:border-border-dark">
+                <img alt="User" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-full h-full" />
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+        <div id="view-creation" class="animate-fade-in max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <input type="file" id="hiddenFileInput" class="hidden" accept="audio/*,video/*">
+                <div id="dropZone" class="md:col-span-3 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 dark:border-border-dark bg-white dark:bg-surface-dark px-6 py-10 transition-all hover:border-primary/50 group cursor-pointer">
+                    <div class="flex flex-col items-center gap-4 text-center">
+                        <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-[32px]">upload_file</span>
+                        </div>
+                        <div>
+                            <p id="fileNameDisplay" class="text-slate-900 dark:text-white text-lg font-bold">גרור קובץ לכאן</p>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">או לחץ לבחירה מהמחשב</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="recordBtn" onclick="toggleRecording(event)" class="relative overflow-hidden flex flex-col items-center justify-center rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark px-4 py-8 hover:shadow-md cursor-pointer">
+                    <div id="micIconContainer" class="size-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4 transition-transform hover:scale-105">
+                        <span class="material-symbols-outlined text-[32px]">mic</span>
+                    </div>
+                    <canvas id="visualizer" width="200" height="80" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] h-[80px] rounded-lg"></canvas>
+                    <p id="recordLabel" class="text-slate-900 dark:text-white font-bold relative z-20">הקלטה חיה</p>
+                    <button id="recordActionBtn" class="mt-4 w-full py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-xs transition-colors shadow-lg shadow-red-500/20 relative z-20">
+                        <span id="recordText">התחל להקליט</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="previewContainer" class="hidden mb-8 bg-black/5 dark:bg-black/40 rounded-xl p-4 border border-slate-200 dark:border-border-dark">
+                <video id="filePreview" controls class="w-full rounded-lg max-h-[300px] bg-black"></video>
+            </div>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="flex flex-col gap-4">
+                    <label class="flex flex-col gap-2">
+                        <p class="text-slate-900 dark:text-white text-base font-bold flex items-center gap-2">הקשר (Context)</p>
+                        <textarea id="contextInput" class="w-full min-h-[120px] rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-primary focus:border-primary p-4 text-sm resize-none custom-scrollbar" placeholder="לדוגמה: זוהי שיחה משפטית..."></textarea>
+                    </label>
+                    <label class="flex flex-col gap-2 w-full">
+                        <p class="text-slate-900 dark:text-white text-base font-bold">מספר דוברים משוער</p>
+                        <input id="speakerCount" class="w-full rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white font-bold h-11 px-4 text-center" type="number" placeholder="אוטומטי" min="1" max="10"/>
+                    </label>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <p class="text-slate-900 dark:text-white text-base font-bold">הנחיה (Prompt)</p>
+                    <textarea id="promptInput" class="w-full h-full min-h-[180px] rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-primary focus:border-primary p-4 text-sm resize-none custom-scrollbar" placeholder="תמלל את השיחה בעברית רשמית..."></textarea>
+                </div>
+            </section>
+
+            <div id="processSection" class="hidden mb-8 bg-white dark:bg-surface-dark rounded-xl p-6 border border-slate-200 dark:border-border-dark shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="statusText" class="text-sm font-bold text-primary">מעבד...</span>
+                    <button onclick="cancelProcess()" class="text-xs text-red-500 font-bold hover:underline">ביטול</button>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-[#111722] rounded-full h-2.5"><div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
+            </div>
+
+            <div class="flex flex-col gap-4 py-8 border-t border-slate-200 dark:border-border-dark items-center">
+                <button id="runBtn" onclick="runTranscriptionProcess()" class="flex w-full max-w-[400px] items-center justify-center rounded-xl h-14 bg-primary text-white gap-3 text-lg font-bold shadow-lg shadow-primary/25 hover:bg-blue-600 hover:scale-[1.01] transition-all">
+                    <span class="material-symbols-outlined text-[24px]">rocket_launch</span> התחל תמלול
+                </button>
+            </div>
+        </div>
+
+        <div id="view-editor" class="hidden animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <h1 id="currentFileName" class="text-2xl font-bold truncate max-w-md">מסמך חדש</h1>
+                <div class="flex gap-3">
+                    <button onclick="copyToClipboard()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-700 dark:text-white text-sm font-semibold hover:bg-slate-50 transition-all gap-2"><span class="material-symbols-outlined text-[18px]">content_copy</span> העתק</button>
+                    <button onclick="downloadText()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition-all gap-2"><span class="material-symbols-outlined text-[18px]">download</span> הורד</button>
+                </div>
+            </div>
+            
+            <div class="sticky top-[70px] z-40 w-full flex justify-center mb-8">
+                <div class="w-full max-w-4xl flex justify-between gap-2 px-4 py-2 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-slate-100 dark:border-border-dark">
+                    <div class="flex gap-1 items-center flex-wrap">
+                        <button onclick="formatDoc('bold')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_bold</span></button>
+                        <button onclick="formatDoc('italic')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_italic</span></button>
+                        <button onclick="formatDoc('underline')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_underlined</span></button>
+                        <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                        <button onclick="formatDoc('justifyRight')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_align_right</span></button>
+                        <button onclick="formatDoc('justifyCenter')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_align_center</span></button>
+                        <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                        <button onclick="formatDoc('insertUnorderedList')" class="p-2 hover:bg-primary/5 rounded"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full flex justify-center pb-20">
+                <div id="outputArea" contenteditable="true" oninput="updateEditorStats(); autoSave()" class="paper-canvas w-full max-w-[840px] bg-white dark:bg-surface-dark rounded-sm p-12 md:p-16 text-slate-800 dark:text-slate-200 text-lg leading-relaxed outline-none whitespace-pre-wrap"></div>
+                <div class="fixed bottom-6 bg-white/90 dark:bg-surface-dark/90 px-6 py-2 rounded-full shadow-lg border flex items-center gap-6 text-sm">
+                    <div class="flex items-center gap-2"><span id="saveStatusIcon" class="material-symbols-outlined text-[18px] text-green-500">check_circle</span> <span id="saveStatusText">נשמר בענן</span></div>
+                    <span id="wordCount">0 מילים</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-archive" class="hidden animate-fade-in">
+            <div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-black">היסטוריית תמלולים</h1><button onclick="clearAllHistory()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-bold">מחק הכל</button></div>
+            <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark shadow-sm"><table class="w-full text-right"><tbody id="historyTableBody"></tbody></table></div>
+        </div>
+    </main>
+</div>
+
+<!-- APP: VISION -->
+<div id="app-vision" class="app-container hidden flex-1 mr-20 flex flex-col min-h-screen">
+    <header class="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-10 py-5"><h2 class="text-2xl font-black flex items-center gap-3"><span class="material-symbols-outlined text-primary">visibility</span> מנתח תמונות חכם</h2></header>
+    <main class="flex-1 w-full max-w-4xl mx-auto p-8">
+        <div class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-xl"><p class="text-slate-500 mb-6 text-center">העלה תמונה ובקש מ-Gemini לנתח אותה.</p><div class="flex flex-col gap-6"><div id="visionDropZone" onclick="document.getElementById('visionFile').click()" class="h-64 rounded-2xl border-2 border-dashed border-slate-200 dark:border-border-dark flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"><img id="visionPreview" class="hidden max-h-full rounded-lg" /><div id="visionPlaceholder" class="flex flex-col items-center gap-3"><span class="material-symbols-outlined text-5xl text-slate-300">add_a_photo</span><p class="font-bold">לחץ להעלאת תמונה</p></div></div><input type="file" id="visionFile" class="hidden" accept="image/*" onchange="previewVisionImage(this)"><textarea id="visionPrompt" class="w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4 h-32" placeholder="מה תרצה לדעת על התמונה?"></textarea><button onclick="runVisionAnalysis()" class="bg-primary text-white h-12 rounded-xl font-bold text-lg hover:scale-[1.02] transition-transform">נתח עכשיו</button><div id="visionResult" class="hidden mt-6 p-6 bg-slate-50 dark:bg-background-dark rounded-xl border dark:border-border-dark min-h-[100px] whitespace-pre-wrap leading-relaxed"></div></div></div>
+    </main>
+</div>
+
+<!-- APP: TORAH (MAHUDADIN) -->
+<div id="app-torah" class="app-container hidden flex-1 mr-20 flex flex-col min-h-screen bg-[#f8f7f2] dark:bg-background-dark">
+    <header class="bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-border-dark px-10 py-6">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="size-12 bg-torani-blue/10 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-torani-blue dark:text-blue-300"><span class="material-symbols-outlined text-3xl">auto_stories</span></div>
+                <div><h2 class="text-2xl font-display font-bold leading-none text-slate-900 dark:text-white">מערכת "מחודדין"</h2><p class="text-sm text-slate-500 mt-1">סיוע לעריכה תורנית והפקת שאלות מן המציאות</p></div>
+            </div>
+            <p class="text-xs font-bold tracking-widest text-slate-400">בס"ד</p>
+        </div>
+    </header>
+    <main class="flex-1 w-full max-w-4xl mx-auto p-8 space-y-8">
+        <div class="bg-white dark:bg-surface-dark rounded-3xl p-8 border border-slate-200 dark:border-border-dark shadow-xl relative overflow-hidden text-slate-900 dark:text-white">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-torani-blue"></div>
+            <label class="block text-lg font-display font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-torani-blue">edit_note</span> הזנת המאמר לעיבוד:</label>
+            <textarea id="torahInput" class="w-full min-h-[250px] bg-slate-50 dark:bg-background-dark border-slate-200 dark:border-border-dark rounded-2xl p-6 text-lg focus:ring-torani-blue focus:border-torani-blue transition-all resize-none custom-scrollbar text-slate-900 dark:text-white" placeholder="הדבק כאן תוכן תורני..."></textarea>
+            <div class="flex justify-center mt-6"><button id="torahGenerateBtn" onclick="runTorahAnalysis()" class="bg-torani-blue hover:bg-blue-900 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg flex items-center gap-3 transition-all"><span class="material-symbols-outlined">psychology</span><span id="torahBtnText">הפקת שאלות מן המציאות</span></button></div>
+        </div>
+        <div id="torahResultCard" class="hidden animate-fade-in bg-white dark:bg-surface-dark rounded-3xl border border-slate-200 dark:border-border-dark shadow-xl p-10">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 dark:border-border-dark pb-4">
+                <h3 class="text-xl font-display font-bold flex items-center gap-2 text-slate-900 dark:text-white"><span class="material-symbols-outlined text-amber-600">lightbulb</span> השאלות שהופקו:</h3>
+                <div class="flex gap-2">
+                    <button onclick="copyTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="העתק"><span class="material-symbols-outlined text-xl">content_copy</span></button>
+                    <button onclick="downloadTorahOutput()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="הורד"><span class="material-symbols-outlined text-xl">download</span></button>
+                </div>
+            </div>
+            <div id="torahOutput" class="torani-output prose prose-slate dark:prose-invert max-w-none text-right font-torani text-slate-800 dark:text-slate-200"></div>
+        </div>
+    </main>
+</div>
+
+<!-- APP: CHAT -->
+<div id="app-chat" class="app-container hidden flex-1 mr-20 flex flex-col h-screen">
+    <header class="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-10 py-5"><h2 class="text-2xl font-black flex items-center gap-3"><span class="material-symbols-outlined text-green-500">chat_bubble</span> עוזר טקסט אישי</h2></header>
+    <div id="chatHistory" class="flex-1 overflow-y-auto p-8 flex flex-col gap-4 custom-scrollbar bg-slate-50 dark:bg-background-dark"></div>
+    <div class="p-6 bg-white dark:bg-surface-dark border-t border-slate-200 dark:border-border-dark">
+        <div class="max-w-4xl mx-auto flex gap-4"><input id="chatInput" type="text" class="flex-1 rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark px-4 text-slate-900 dark:text-white" placeholder="כתוב כאן שאלה..." onkeydown="if(event.key==='Enter') sendChatMessage()"><button onclick="sendChatMessage()" class="bg-primary text-white px-6 py-2 rounded-xl font-bold">שלח</button></div>
+    </div>
+</div>
+
+<!-- APP: SETTINGS -->
+<div id="app-settings" class="app-container hidden flex-1 mr-20 flex flex-col min-h-screen">
+    <header class="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark px-10 py-6"><h2 class="text-2xl font-black flex items-center gap-3"><span class="material-symbols-outlined text-slate-500">settings</span> הגדרות מערכת</h2></header>
+    <main class="flex-1 w-full max-w-3xl mx-auto p-8 space-y-8">
+        <section class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-sm">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">key</span> מפתח API</h3>
+            <div class="relative"><input id="globalApiKey" type="password" class="w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark p-4 pr-12 text-slate-900 dark:text-white" placeholder="הזן כאן את מפתח ה-API של Gemini"><button onclick="toggleGlobalKeyVisibility()" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><span id="globalVisibilityIcon" class="material-symbols-outlined">visibility</span></button></div>
+            <button onclick="fetchGlobalModels()" id="globalFetchBtn" class="mt-4 flex items-center gap-2 bg-slate-100 dark:bg-background-dark px-4 py-2 rounded-lg font-bold hover:bg-slate-200 transition-colors"><span id="globalFetchIcon" class="material-symbols-outlined">sync</span> טען רשימת מודלים</button>
+        </section>
+        <section class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-sm space-y-6">
+            <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">hub</span> הגדרות מודלים</h3>
+            <div class="space-y-4"><label class="block"><span class="text-sm font-bold text-slate-500 dark:text-slate-400">מודל גלובלי (ברירת מחדל לכל הכלים)</span><select id="globalModelSelect" class="mt-1 w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-white p-3"></select></label><hr class="border-slate-100 dark:border-border-dark"><div class="flex items-center justify-between"><span class="text-sm font-bold">מודלים ספציפיים לכלים (אופציונלי):</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><label><span class="text-xs text-slate-500">תמלול</span><select id="model-transcriber" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">ניתוח תמונות</span><select id="model-vision" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">עריכה תורנית</span><select id="model-torah" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label><label><span class="text-xs text-slate-500">עוזר טקסט</span><select id="model-chat" class="w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2"></select></label></div></div>
+        </section>
+        <button onclick="saveAllSettings()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">שמור הגדרות</button>
+    </main>
+</div>
+
+<div id="toast-container" class="fixed bottom-5 left-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+<script>
+// --- Globals ---
+const BASE_URL = "https://generativelanguage.googleapis.com";
+let settings = {
+    apiKey: localStorage.getItem('gemini_api_key') || '',
+    globalModel: localStorage.getItem('gemini_global_model') || '',
+    toolModels: JSON.parse(localStorage.getItem('gemini_tool_models') || '{}')
+};
+let selectedFile = null, currentDocId = null, abortController = null, saveTimeout = null;
+let audioCtx, analyser, visualizerDataArray, visualizerCanvasCtx, visualizerReqId, mediaRecorder, audioChunks = [];
+
+// --- Settings ---
+function saveAllSettings() {
+    settings.apiKey = document.getElementById('globalApiKey').value;
+    settings.globalModel = document.getElementById('globalModelSelect').value;
+    settings.toolModels = {
+        transcriber: document.getElementById('model-transcriber').value,
+        vision: document.getElementById('model-vision').value,
+        torah: document.getElementById('model-torah').value,
+        chat: document.getElementById('model-chat').value
+    };
+    localStorage.setItem('gemini_api_key', settings.apiKey);
+    localStorage.setItem('gemini_global_model', settings.globalModel);
+    localStorage.setItem('gemini_tool_models', JSON.stringify(settings.toolModels));
+    showToast("ההגדרות נשמרו בהצלחה", "success");
+}
+function getEffectiveModel(t) { return settings.toolModels[t] || settings.globalModel || "gemini-2.5-flash-preview-09-2025"; }
+async function fetchGlobalModels() {
+    const key = document.getElementById('globalApiKey').value;
+    if(!key) return showToast("הזן מפתח API", "error");
+    document.getElementById('globalFetchIcon').classList.add('animate-spin');
+    try {
+        const r = await fetch(`${BASE_URL}/v1beta/models?key=${key}`);
+        const d = await r.json();
+        const models = d.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
+        ['globalModelSelect', 'model-transcriber', 'model-vision', 'model-torah', 'model-chat'].forEach(id => {
+            const el = document.getElementById(id); el.innerHTML = (id !== 'globalModelSelect') ? '<option value="">השתמש בגלובלי</option>' : '';
+            models.forEach(m => el.add(new Option(m.displayName, m.name.replace('models/',''))));
+        });
+        showToast("רשימת מודלים עודכנה", "success");
+    } catch(e) { showToast("שגיאה בטעינה", "error"); }
+    finally { document.getElementById('globalFetchIcon').classList.remove('animate-spin'); }
+}
+
+// --- DB ---
+function openDB() { return new Promise(res => { const r = indexedDB.open("GeminiTranscriberDB", 1); r.onupgradeneeded = e => e.target.result.createObjectStore("transcriptions", {keyPath: "id"}); r.onsuccess = e => res(e.target.result); }); }
+async function saveToDB(f,t,id=null) { const db = await openDB(); const item = {id: id || Date.now(), filename:f, text:t, date: new Date().toLocaleString(), preview: t.substring(0, 100).replace(/<[^>]*>/g, '')}; await db.transaction("transcriptions","readwrite").objectStore("transcriptions").put(item); return item.id; }
+async function getAllFromDB() { const db = await openDB(); return new Promise(res => db.transaction("transcriptions").objectStore("transcriptions").getAll().onsuccess = e => res(e.target.result)); }
+async function clearAllHistory() { if(!confirm("למחוק הכל?")) return; const db = await openDB(); db.transaction("transcriptions","readwrite").objectStore("transcriptions").clear().onsuccess = () => renderHistory(); }
+
+// --- App Navigation ---
+function switchApp(id) {
+    document.querySelectorAll('.app-container').forEach(a => a.classList.add('hidden'));
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('app-'+id).classList.remove('hidden');
+    document.getElementById('side-'+id).classList.add('active');
+    if(id === 'settings') document.getElementById('globalApiKey').value = settings.apiKey;
+}
+function switchTab(t) {
+    document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-'+t).classList.remove('hidden');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-primary'));
+    document.getElementById('btn-'+t).classList.add('active', 'text-primary');
+    if(t==='archive') renderHistory();
+}
+
+// --- UI Helpers ---
+function showToast(m,t='info') {
+    const c = document.getElementById('toast-container'), toast = document.createElement('div');
+    const bg = t==='success' ? 'bg-green-500' : (t==='error' ? 'bg-red-500' : 'bg-blue-500');
+    toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${bg} text-white min-w-[250px]`;
+    toast.innerHTML = `<span class="material-symbols-outlined">info</span><span class="text-sm font-medium">${m}</span>`;
+    c.appendChild(toast); setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
+}
+function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
+function toggleGlobalKeyVisibility() { const i = document.getElementById('globalApiKey'); i.type = i.type==='password'?'text':'password'; }
+
+// --- Audio Recording & Visualizer ---
+function startVisualizer(s) {
+    const v = document.getElementById('visualizer'); visualizerCanvasCtx = v.getContext('2d');
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaStreamSource(s); analyser = audioCtx.createAnalyser(); analyser.fftSize = 256; src.connect(analyser);
+    visualizerDataArray = new Uint8Array(analyser.frequencyBinCount); v.classList.remove('hidden'); document.getElementById('micIconContainer').classList.add('hidden');
+    const draw = () => { visualizerReqId = requestAnimationFrame(draw); analyser.getByteFrequencyData(visualizerDataArray); visualizerCanvasCtx.clearRect(0,0,v.width,v.height); visualizerCanvasCtx.fillStyle = '#ef4444'; visualizerDataArray.forEach((val, i) => visualizerCanvasCtx.fillRect(i*2, v.height - val/3, 1.5, val/3)); };
+    draw();
+}
+function toggleRecording() {
+    if(!mediaRecorder || mediaRecorder.state === 'inactive') {
+        navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+            startVisualizer(s); mediaRecorder = new MediaRecorder(s); audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                selectedFile = new File([new Blob(audioChunks, {type:'audio/wav'})], "recording.wav", {type:"audio/wav"});
+                document.getElementById('fileNameDisplay').innerText = selectedFile.name; cancelAnimationFrame(visualizerReqId);
+                document.getElementById('visualizer').classList.add('hidden'); document.getElementById('micIconContainer').classList.remove('hidden'); s.getTracks().forEach(t => t.stop());
+            };
+            mediaRecorder.start(); document.getElementById('recordText').innerText = "עצור";
+        });
+    } else { mediaRecorder.stop(); document.getElementById('recordText').innerText = "התחל להקליט"; }
+}
+
+// --- Core Logic (Transcriber, Vision, Torah, Chat) ---
+async function runTranscriptionProcess() {
+    const k = settings.apiKey, m = getEffectiveModel('transcriber'); if(!k || !selectedFile) return showToast("בדוק הגדרות", "error");
+    const bar = document.getElementById('progressBar'); document.getElementById('processSection').classList.remove('hidden'); abortController = new AbortController();
+    try {
+        bar.style.width = "20%";
+        const init = await fetch(BASE_URL + "/upload/v1beta/files?key=" + k, { method: 'POST', body: JSON.stringify({file:{display_name:selectedFile.name}}), signal: abortController.signal });
+        const uploadUrl = init.headers.get('X-Goog-Upload-URL');
+        const uploadRes = await fetch(uploadUrl, { method: 'POST', body: selectedFile, signal: abortController.signal });
+        const fData = await uploadRes.json();
+        let st = "PROCESSING";
+        while(st === "PROCESSING") { await new Promise(r => setTimeout(r, 2000)); const c = await fetch(fData.file.uri + "?key=" + k); const d = await c.json(); st = d.state; }
+        const gen = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:document.getElementById('promptInput').value||"Transcribe."},{file_data:{mime_type:selectedFile.type,file_uri:fData.file.uri}}]}]}), signal: abortController.signal });
+        const res = await gen.json(); const txt = res.candidates[0].content.parts[0].text;
+        const html = txt.split('\n').map(l => `<p>${l}</p>`).join('');
+        document.getElementById('outputArea').innerHTML = html; document.getElementById('currentFileName').innerText = selectedFile.name; currentDocId = await saveToDB(selectedFile.name, html); switchTab('editor');
+    } catch(e) { showToast("שגיאה בתמלול", "error"); } finally { document.getElementById('processSection').classList.add('hidden'); }
+}
+async function runVisionAnalysis() {
+    const k = settings.apiKey, m = getEffectiveModel('vision'), f = document.getElementById('visionFile').files[0], p = document.getElementById('visionPrompt').value || "Analyze this image.", resDiv = document.getElementById('visionResult');
+    if(!k || !f) return showToast("חסר מפתח או תמונה", "error");
+    resDiv.innerText = "מנתח..."; resDiv.classList.remove('hidden');
+    const reader = new FileReader(); reader.readAsDataURL(f); reader.onload = async () => {
+        try {
+            const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:p},{inline_data:{mime_type:f.type,data:reader.result.split(',')[1]}}]}]}) });
+            const d = await r.json(); resDiv.innerText = d.candidates[0].content.parts[0].text;
+        } catch(e) { resDiv.innerText = "שגיאה בניתוח."; }
+    };
+}
+async function runTorahAnalysis() {
+    const k = settings.apiKey, m = getEffectiveModel('torah'), txt = document.getElementById('torahInput').value, out = document.getElementById('torahOutput'), card = document.getElementById('torahResultCard');
+    if(!k || !txt) return showToast("חסר מפתח או מאמר", "error");
+    document.getElementById('torahBtnText').innerText = "מעבד...";
+    try {
+        const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text: "אתה עורך תורני. הפק 6-8 שאלות מן המציאות מהמאמר הבא. התחל כל שאלה בסימן ♦.\n\n" + txt}]}]}) });
+        const d = await r.json(); out.innerHTML = marked.parse(d.candidates[0].content.parts[0].text); card.classList.remove('hidden');
+    } catch(e) { showToast("שגיאה", "error"); } finally { document.getElementById('torahBtnText').innerText = "הפקת שאלות מן המציאות"; }
+}
+async function sendChatMessage() {
+    const k = settings.apiKey, m = getEffectiveModel('chat'), inp = document.getElementById('chatInput'), hist = document.getElementById('chatHistory'), msg = inp.value.trim();
+    if(!k || !msg) return; hist.innerHTML += `<div class="self-start bg-primary text-white p-3 rounded-2xl max-w-[80%]">${msg}</div>`; inp.value = "";
+    try {
+        const r = await fetch(`${BASE_URL}/v1beta/models/${m}:generateContent?key=${k}`, { method: 'POST', body: JSON.stringify({contents:[{parts:[{text:msg}]}]}) });
+        const d = await r.json(); hist.innerHTML += `<div class="self-end bg-white dark:bg-surface-dark p-3 rounded-2xl max-w-[80%] border dark:border-border-dark">${d.candidates[0].content.parts[0].text}</div>`; hist.scrollTop = hist.scrollHeight;
+    } catch(e) { showToast("שגיאה", "error"); }
+}
+
+// --- Specific Torah/Utility Functions (The Fixed Part) ---
+function copyTorahOutput() {
+    const text = document.getElementById('torahOutput').innerText;
+    if(!text) return;
+    navigator.clipboard.writeText(text); showToast("הועתק ללוח", "success");
+}
+function downloadTorahOutput() {
+    const text = document.getElementById('torahOutput').innerText;
+    if(!text) return;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'mahudadin_questions.txt'; link.click();
+}
+
+// --- Editor Tools ---
+function formatDoc(cmd, val=null) { document.execCommand(cmd, false, val); }
+function updateEditorStats() { document.getElementById('wordCount').innerText = document.getElementById('outputArea').innerText.trim().split(/\s+/).length + " מילים"; }
+function autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+        document.getElementById('saveStatusIcon').innerText = 'sync';
+        await saveToDB(document.getElementById('currentFileName').innerText, document.getElementById('outputArea').innerHTML, currentDocId);
+        document.getElementById('saveStatusIcon').innerText = 'check_circle';
+    }, 1000);
+}
+function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('outputArea').innerText); showToast("הועתק", "success"); }
+function downloadText() {
+    const b = new Blob([document.getElementById('outputArea').innerText], {type:'text/plain'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = document.getElementById('currentFileName').innerText + ".txt"; a.click();
+}
+
+async function renderHistory() {
+    const h = await getAllFromDB();
+    document.getElementById('historyTableBody').innerHTML = h.reverse().map(i => `<tr class="border-b dark:border-border-dark cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"><td class="p-4" onclick="loadDoc(${i.id})">${i.filename}</td><td class="p-4">${i.date}</td></tr>`).join('') || '<tr><td colspan="2" class="p-10 text-center text-slate-400">הארכיון ריק</td></tr>';
+}
+async function loadDoc(id) {
+    const h = await getAllFromDB(); const i = h.find(x => x.id === id);
+    if(i) { currentDocId = i.id; document.getElementById('outputArea').innerHTML = i.text; document.getElementById('currentFileName').innerText = i.filename; switchTab('editor'); updateEditorStats(); }
+}
+
+function previewVisionImage(i) {
+    const f = i.files[0]; if(f) { const r = new FileReader(); r.onload = e => { document.getElementById('visionPreview').src = e.target.result; document.getElementById('visionPreview').classList.remove('hidden'); document.getElementById('visionPlaceholder').classList.add('hidden'); }; r.readAsDataURL(f); }
+}
+
+window.onload = () => {
+    if(localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+    if(settings.apiKey) fetchGlobalModels();
+    document.getElementById('dropZone').onclick = () => document.getElementById('hiddenFileInput').click();
+    document.getElementById('hiddenFileInput').onchange = e => { selectedFile = e.target.files[0]; document.getElementById('fileNameDisplay').innerText = selectedFile.name; };
+};
+</script>
+</body>
+</html>
