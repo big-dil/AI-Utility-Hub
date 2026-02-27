@@ -295,11 +295,11 @@
         <section class="bg-white dark:bg-surface-dark rounded-2xl p-8 border border-slate-200 dark:border-border-dark shadow-sm space-y-6">
             <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">hub</span> הגדרות מודלים</h3>
             <div class="space-y-4"><label class="block"><span class="text-sm font-bold text-slate-500 dark:text-slate-400">מודל גלובלי (ברירת מחדל לכל הכלים)</span><select id="globalModelSelect" class="mt-1 w-full rounded-xl border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-white p-3"></select></label><hr class="border-slate-100 dark:border-border-dark"><div class="flex items-center justify-between"><span class="text-sm font-bold text-slate-900 dark:text-white">מודלים ספציפיים לכלים (אופציונלי):</span></div><div id="modelSelectContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label><span class="text-xs text-slate-500">תמלול</span><select id="model-transcriber" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
-                <label><span class="text-xs text-slate-500">ניתוח תמונות</span><select id="model-vision" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
-                <label><span class="text-xs text-slate-500">מחודדין (שאלות)</span><select id="model-torah" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
-                <label><span class="text-xs text-slate-500">ניסוח מאמרים</span><select id="model-torah-edit" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
-                <label><span class="text-xs text-slate-500">עוזר טקסט</span><select id="model-chat" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500 text-slate-400">תמלול</span><select id="model-transcriber" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500 text-slate-400">ניתוח תמונות</span><select id="model-vision" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500 text-slate-400">מחודדין (שאלות)</span><select id="model-torah" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500 text-slate-400">ניסוח מאמרים</span><select id="model-torah-edit" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
+                <label><span class="text-xs text-slate-500 text-slate-400">עוזר טקסט</span><select id="model-chat" class="model-select w-full rounded-lg border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark text-xs p-2 text-slate-900 dark:text-white"></select></label>
             </div></div>
         </section>
         <button onclick="saveAllSettings()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">שמור הגדרות</button>
@@ -309,7 +309,7 @@
 <div id="toast-container" class="fixed bottom-5 left-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
 <script>
-// --- Configuration & Settings Management ---
+// --- Configuration & Global Settings ---
 const BASE_URL = "https://generativelanguage.googleapis.com";
 let settings = {
     apiKey: localStorage.getItem('gemini_api_key') || '',
@@ -317,12 +317,18 @@ let settings = {
     toolModels: JSON.parse(localStorage.getItem('gemini_tool_models') || '{}')
 };
 
-// --- Initialization & Theme ---
+// --- Initialization ---
 window.onload = () => {
+    // Theme Init
     if(localStorage.getItem('theme') === 'dark') {
         document.documentElement.classList.add('dark');
         document.getElementById('globalThemeIcon').innerText = 'light_mode';
     }
+
+    // Populate Settings UI
+    document.getElementById('globalApiKey').value = settings.apiKey;
+
+    // File Input Init
     const drop = document.getElementById('dropZone');
     if (drop) {
         drop.onclick = () => document.getElementById('hiddenFileInput').click();
@@ -334,8 +340,28 @@ window.onload = () => {
             document.getElementById('previewContainer').classList.remove('hidden');
         };
     }
+    
+    // Auto-fetch models if key exists
     if(settings.apiKey) fetchGlobalModels();
 };
+
+// --- Global UI Logic ---
+function switchApp(appId) {
+    document.querySelectorAll('.app-container').forEach(app => app.classList.add('hidden'));
+    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+    document.getElementById('app-' + appId).classList.remove('hidden');
+    document.getElementById('side-' + appId).classList.add('active');
+    if(appId === 'settings') document.getElementById('globalApiKey').value = settings.apiKey;
+}
+
+function switchTab(t) {
+    document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + t).classList.remove('hidden');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-primary'));
+    const btn = document.getElementById('btn-' + t);
+    if(btn) btn.classList.add('active', 'text-primary');
+    if(t==='archive') renderHistory();
+}
 
 function toggleTheme() {
     const html = document.documentElement;
@@ -356,30 +382,14 @@ function showToast(message, type = 'success') {
     setTimeout(() => { toast.classList.add('opacity-0'); toast.addEventListener('transitionend', () => toast.remove()); }, 4000);
 }
 
-// --- App Navigation ---
-function switchApp(appId) {
-    document.querySelectorAll('.app-container').forEach(app => app.classList.add('hidden'));
-    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
-    document.getElementById('app-' + appId).classList.remove('hidden');
-    document.getElementById('side-' + appId).classList.add('active');
-    
-    if(appId === 'settings') {
-        document.getElementById('globalApiKey').value = settings.apiKey;
-    }
-}
-
-function switchTab(t) {
-    document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
-    document.getElementById('view-' + t).classList.remove('hidden');
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'text-primary'));
-    document.getElementById('btn-' + t).classList.add('active', 'text-primary');
-    if(t==='archive') renderHistory();
-}
-
-// --- Settings Functions ---
+// --- Settings Management ---
 function saveAllSettings() {
-    settings.apiKey = document.getElementById('globalApiKey').value;
-    settings.globalModel = document.getElementById('globalModelSelect').value;
+    const inputKey = document.getElementById('globalApiKey').value.trim();
+    const globalM = document.getElementById('globalModelSelect').value;
+    
+    // Update settings object
+    settings.apiKey = inputKey;
+    settings.globalModel = globalM;
     
     const toolSelects = document.querySelectorAll('.model-select');
     settings.toolModels = {};
@@ -388,14 +398,16 @@ function saveAllSettings() {
         settings.toolModels[toolId] = sel.value;
     });
 
+    // Save to LocalStorage
     localStorage.setItem('gemini_api_key', settings.apiKey);
     localStorage.setItem('gemini_global_model', settings.globalModel);
     localStorage.setItem('gemini_tool_models', JSON.stringify(settings.toolModels));
-    showToast("ההגדרות נשמרו", "success");
+    
+    showToast("ההגדרות נשמרו בהצלחה", "success");
 }
 
 function getEffectiveModel(toolId) {
-    return settings.toolModels[toolId] || settings.globalModel || "gemini-2.5-flash-preview-09-2025";
+    return settings.toolModels[toolId] || settings.globalModel || "gemini-1.5-flash-preview-09-2025";
 }
 
 async function fetchGlobalModels() {
@@ -406,9 +418,11 @@ async function fetchGlobalModels() {
     try {
         const res = await fetch(`${BASE_URL}/v1beta/models?key=${key}`);
         const data = await res.json();
-        const models = data.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
+        if(data.error) throw new Error(data.error.message);
         
+        const models = data.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
         const selects = ['globalModelSelect', 'model-transcriber', 'model-vision', 'model-torah', 'model-torah-edit', 'model-chat'];
+        
         selects.forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -420,7 +434,7 @@ async function fetchGlobalModels() {
             });
             if(currentVal) el.value = currentVal;
         });
-        showToast("מודלים עודכנו", "success");
+        showToast("רשימת מודלים עודכנה", "success");
     } catch(e) { showToast("שגיאה בטעינת מודלים", "error"); }
     finally { if(fetchIcon) fetchIcon.classList.remove('animate-spin'); }
 }
@@ -430,58 +444,14 @@ function toggleGlobalKeyVisibility() {
     input.type = input.type === "password" ? "text" : "password";
 }
 
-// --- Transcription Logic ---
+// --- Tools Logic ---
 let selectedFile = null, currentDocId = null, abortController = null, saveTimeout = null;
 let audioCtx, analyser, visualizerDataArray, visualizerCanvasCtx, visualizerReqId, mediaRecorder, audioChunks = [];
 
-function startVisualizer(stream) {
-    const v = document.getElementById('visualizer');
-    visualizerCanvasCtx = v.getContext('2d');
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const src = audioCtx.createMediaStreamSource(stream);
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    src.connect(analyser);
-    visualizerDataArray = new Uint8Array(analyser.frequencyBinCount);
-    v.classList.remove('hidden');
-    document.getElementById('micIconContainer').classList.add('hidden');
-    const draw = () => {
-        visualizerReqId = requestAnimationFrame(draw);
-        analyser.getByteFrequencyData(visualizerDataArray);
-        visualizerCanvasCtx.clearRect(0,0,v.width,v.height);
-        visualizerCanvasCtx.fillStyle = '#ef4444';
-        visualizerDataArray.forEach((val, i) => { visualizerCanvasCtx.fillRect(i*2, v.height - val/3, 1.5, val/3); });
-    };
-    draw();
-}
-
-function toggleRecording() {
-    if(!mediaRecorder || mediaRecorder.state === 'inactive') {
-        navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-            startVisualizer(s);
-            mediaRecorder = new MediaRecorder(s);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                selectedFile = new File([new Blob(audioChunks, {type:'audio/wav'})], "recording.wav", {type:"audio/wav"});
-                document.getElementById('fileNameDisplay').innerText = selectedFile.name;
-                cancelAnimationFrame(visualizerReqId);
-                document.getElementById('visualizer').classList.add('hidden');
-                document.getElementById('micIconContainer').classList.remove('hidden');
-                s.getTracks().forEach(t => t.stop());
-            };
-            mediaRecorder.start();
-            document.getElementById('recordText').innerText = "עצור";
-        }).catch(() => showToast("אין גישה למיקרופון", "error"));
-    } else {
-        mediaRecorder.stop();
-        document.getElementById('recordText').innerText = "התחל להקליט";
-    }
-}
-
+// Transcriber
 async function runTranscriptionProcess() {
     const key = settings.apiKey, model = getEffectiveModel('transcriber');
-    if(!key || !selectedFile) return showToast("בדוק הגדרות והעלאת קובץ", "error");
+    if(!key || !selectedFile) return showToast("חסר מפתח API או קובץ", "error");
     const bar = document.getElementById('progressBar'), status = document.getElementById('statusText');
     document.getElementById('processSection').classList.remove('hidden');
     abortController = new AbortController();
@@ -498,25 +468,11 @@ async function runTranscriptionProcess() {
         const res = await gen.json();
         const html = res.candidates[0].content.parts[0].text.split('\n').map(l => `<p>${l}</p>`).join('');
         document.getElementById('outputArea').innerHTML = html; document.getElementById('currentFileName').innerText = selectedFile.name; currentDocId = await saveToDB(selectedFile.name, html); switchTab('editor');
-    } catch(e) { showToast("שגיאה בתהליך", "error"); }
+    } catch(e) { showToast("שגיאה בתמלול", "error"); }
     finally { document.getElementById('processSection').classList.add('hidden'); }
 }
-function cancelProcess() { if(abortController) abortController.abort(); }
 
-// --- Vision Logic ---
-function previewVisionImage(i) {
-    const f = i.files[0];
-    if(f) {
-        const r = new FileReader();
-        r.onload = e => { 
-            document.getElementById('visionPreview').src = e.target.result; 
-            document.getElementById('visionPreview').classList.remove('hidden'); 
-            document.getElementById('visionPlaceholder').classList.add('hidden'); 
-        };
-        r.readAsDataURL(f);
-    }
-}
-
+// Vision
 async function runVisionAnalysis() {
     const key = settings.apiKey, model = getEffectiveModel('vision'), f = document.getElementById('visionFile').files[0], p = document.getElementById('visionPrompt').value || "Analyze this image.", resDiv = document.getElementById('visionResult');
     if(!key || !f) return showToast("חסר מפתח או תמונה", "error");
@@ -529,49 +485,78 @@ async function runVisionAnalysis() {
     };
 }
 
-// --- Torah (Mahudadin) Logic ---
+// Torah (Mahudadin)
 async function runTorahAnalysis() {
     const key = settings.apiKey, model = getEffectiveModel('torah'), txt = document.getElementById('torahInput').value;
     if(!key || !txt) return showToast("חסר מפתח או מאמר", "error");
     document.getElementById('torahBtnText').innerText = "מעבד...";
     try {
-        const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: "אתה עורך תורני. הפק 6-8 שאלות מן המציאות מהמאמר הבא. התחל כל שאלה בסימן ♦.\n\n" + txt }] }] }) });
+        const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `
+                אתה עורך תורני מומחה לעריכת מדורי הלכה למעשה.
+                תפקידך: לנתח את המאמר התורני המצורף ולחלץ ממנו פתיח של 6-8 שאלות מן המציאות היומיומית.
+                
+                עקרונות הכתיבה:
+                1. אל תסכם את המאמר. תרגם את הסברות ההלכתיות לסיטואציות של שנות ה-2020.
+                2. השתמש במקרים מעשיים: קניות אונליין, מוצרי צריכה מודרניים, חקלאות מתועשת, טיולים, משלוחים וכו'.
+                3. מבנה כל שאלה: הצגת מקרה מעשי קצר -> פעולה -> התעוררות הספק ההלכתי.
+                4. שפה: רהוטה, מכובדת ומושכת, המותאמת לקוראי עלונים תורניים.
+                5. פורמט: רשימה פשוטה שכל שורה בה מתחילה בסימן ♦.
+                
+                הפק את השאלות בצורה נקייה, ללא כותרות מיותרות או הסברים מסביב.\n\n` + txt }] }] }) });
         const data = await res.json(); document.getElementById('torahOutput').innerHTML = marked.parse(data.candidates[0].content.parts[0].text); document.getElementById('torahResultCard').classList.remove('hidden');
-    } catch(e) { showToast("שגיאה", "error"); }
+    } catch(e) { showToast("שגיאה בניתוח", "error"); }
     finally { document.getElementById('torahBtnText').innerText = "הפקת שאלות מן המציאות"; }
 }
+
 function copyTorahOutput() { navigator.clipboard.writeText(document.getElementById('torahOutput').innerText); showToast("הועתק", "success"); }
 function downloadTorahOutput() { const b = new Blob([document.getElementById('torahOutput').innerText], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'mahudadin_questions.txt'; a.click(); }
 
-// --- Torah Edit (New Tool) Logic ---
+// Torah Edit
 async function runTorahEditAnalysis() {
     const key = settings.apiKey, model = getEffectiveModel('torah-edit'), txt = document.getElementById('torahEditInput').value;
     if(!key || !txt) return showToast("חסר מפתח או מאמר", "error");
     document.getElementById('torahEditBtnText').innerText = "מעבד...";
     const prompt = `
-    תפקידך: עורך תורני מומחה.
-    המשימה: נסח מחדש ושפר את המאמר התורני המצורף.
-    דרישות:
-    1. שמור על התוכן ההלכתי והסברות המקוריות ללא שינוי.
-    2. שפר את זרימת המשפטים, הרהיטות והתחביר.
-    3. השתמש בלשון קודש מכובדת המתאימה לעולם התורה (סגנון עולם הישיבות או כתבי עת תורניים).
-    4. סדר את הטקסט בפסקאות הגיוניות.
-    5. אם יש ראשי תיבות לא ברורים, פתח אותם במידת הצורך לזרימת הקריאה.
-    
-    הפק את הטקסט הערוך בלבד, ללא הקדמות.`;
+    # System Prompt: עורך תורני בכיר - ניסוח הלכתי אינטגרלי ומורחב
+
+## זהות ומטרה:
+אתה עורך תורני מומחה בעל סגנון כתיבה ישיבתי, בהיר ומקצועי. תפקידך הוא לעבד חומרים גולמיים, מקורות, ותוספות למאמר הלכתי שלם, מובנה ורציף.
+
+## הנחיות עבודה קריטיות (Strict Instructions):
+1. **איסור קיצור מוחלט (Zero Compression):** חל איסור מוחלט לקצר, לתמצת או להשמיט מידע. כל מקור, סברא, חילוק דין, דוגמה מעשית או הערה המופיעים בטקסט הגולמי חייבים להופיע במאמר הסופי במלואם ובפירוט המקסימלי.
+2. **שילוב אינטגרלי (Full Integration):** כאשר מוזנים אליך מאמר קיים ותוספות, עליך לשזור את התוספות בתוך המבנה הקיים בצורה אורגנית. כל תוספת חייבת להיכנס לסעיף הרלוונטי לה מבחינה עניינית כדי ליצור רצף הלכתי אחד.
+3. **שפה וסגנון:** השתמש בלשון תורנית-ישיבתית (מושגים כגון: "ויש לעיין", "נפקא מינה", "דילמא", "להלן", "אתי שפיר", "סבירא ליה"). 
+4. **סדר היררכי:** הצג את הדברים לפי סדר כרונולוגי והלכתי: יסודות מהתורה -> גמרא -> ראשונים -> שו"ע ורמ"א -> אחרונים ופוסקי זמננו.
+
+## מבנה המאמר:
+- **כותרת ראשית** למאמר.
+- **הקדמה:** הצגת יסודות הסוגיה.
+- **חלוקה להלכות:** מוספרות (הלכה א, הלכה ב וכו') עם כותרות משנה ברורות ומודגשות.
+- **סיכום:** פרק סופי של "דינים העולים למעשה" בנקודות ברורות.
+- **סייגים:** במידה וקיימים (כגון סייג הצניעות).
+
+## דגשי עיצוב ופורמט:
+- **הדגשות:** הדגש שמות פוסקים (למשל: **המשנה ברורה**, **האגרות משה**) ומושגי מפתח.
+- **רשימות:** השתמש בבולטים (Bullet points) לפירוט מחלוקות, מקרים פרטיים או רשימות דינים.
+- **הפרדה ויזואלית:** השתמש בקווי הפרדה (---) בין פרקים או נושאים מרכזיים.
+
+---
+**המשימה כעת:** נסח את המאמר הבא על בסיס הטקסטים שיובאו להלן, מילה במילה, ללא שום קיצור ובפירוט מלא:
+    `;
     try {
         const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt + "\n\n" + txt }] }] }) });
         const data = await res.json(); document.getElementById('torahEditOutput').innerHTML = marked.parse(data.candidates[0].content.parts[0].text); document.getElementById('torahEditResultCard').classList.remove('hidden');
     } catch(e) { showToast("שגיאה בניסוח", "error"); }
     finally { document.getElementById('torahEditBtnText').innerText = "ערוך ונסח מחדש"; }
 }
+
 function copyTorahEditOutput() { navigator.clipboard.writeText(document.getElementById('torahEditOutput').innerText); showToast("הועתק", "success"); }
 function downloadTorahEditOutput() { const b = new Blob([document.getElementById('torahEditOutput').innerText], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'torah_edited_article.txt'; a.click(); }
 
-// --- Chat Logic ---
+// Chat
 async function sendChatMessage() {
     const key = settings.apiKey, model = getEffectiveModel('chat'), inp = document.getElementById('chatInput'), hist = document.getElementById('chatHistory'), msg = inp.value.trim();
-    if(!key || !msg) return;
+    if(!key || !msg) return showToast("חסר מפתח API", "error");
     hist.innerHTML += `<div class="self-start bg-primary text-white p-3 rounded-2xl max-w-[80%]">${msg}</div>`; inp.value = "";
     try {
         const res = await fetch(`${BASE_URL}/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }] }) });
@@ -584,13 +569,45 @@ function openDB() { return new Promise(res => { const r = indexedDB.open("Gemini
 async function saveToDB(f,t,id=null) { const db = await openDB(); const item = {id: id || Date.now(), filename:f, text:t, date: new Date().toLocaleString(), preview: t.substring(0, 100).replace(/<[^>]*>/g, '')}; await db.transaction("transcriptions","readwrite").objectStore("transcriptions").put(item); return item.id; }
 async function getAllFromDB() { const db = await openDB(); return new Promise(res => db.transaction("transcriptions").objectStore("transcriptions").getAll().onsuccess = e => res(e.target.result)); }
 async function clearAllHistory() { if(!confirm("למחוק הכל?")) return; const db = await openDB(); db.transaction("transcriptions","readwrite").objectStore("transcriptions").clear().onsuccess = () => renderHistory(); }
+
 function formatDoc(cmd, val=null) { document.execCommand(cmd, false, val); }
-function updateEditorStats() { const area = document.getElementById('outputArea'); document.getElementById('wordCount').innerText = (area.innerText.trim() ? area.innerText.trim().split(/\s+/).length : 0) + " מילים"; }
-function autoSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(async () => { document.getElementById('saveStatusIcon').innerText = 'sync'; await saveToDB(document.getElementById('currentFileName').innerText, document.getElementById('outputArea').innerHTML, currentDocId); document.getElementById('saveStatusIcon').innerText = 'check_circle'; }, 1000); }
+function updateEditorStats() { const area = document.getElementById('outputArea'); if(area) document.getElementById('wordCount').innerText = (area.innerText.trim() ? area.innerText.trim().split(/\s+/).length : 0) + " מילים"; }
+function autoSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(async () => { const icon = document.getElementById('saveStatusIcon'); if(icon) icon.innerText = 'sync'; await saveToDB(document.getElementById('currentFileName').innerText, document.getElementById('outputArea').innerHTML, currentDocId); if(icon) icon.innerText = 'check_circle'; }, 1000); }
 function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('outputArea').innerText); showToast("הועתק", "success"); }
 function downloadText() { const b = new Blob([document.getElementById('outputArea').innerText], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = document.getElementById('currentFileName').innerText + ".txt"; a.click(); }
+
 async function renderHistory() { const h = await getAllFromDB(); document.getElementById('historyTableBody').innerHTML = h.reverse().map(i => `<tr class="border-b dark:border-border-dark cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"><td class="p-4" onclick="loadDoc(${i.id})">${i.filename}</td><td class="p-4 text-xs opacity-50">${i.date}</td></tr>`).join('') || '<tr><td colspan="2" class="p-10 text-center text-slate-400">הארכיון ריק</td></tr>'; }
 async function loadDoc(id) { const h = await getAllFromDB(); const i = h.find(x => x.id === id); if(i) { currentDocId = i.id; document.getElementById('outputArea').innerHTML = i.text; document.getElementById('currentFileName').innerText = i.filename; switchTab('editor'); updateEditorStats(); } }
+
+// Audio Rec Helpers
+function toggleRecording() {
+    if(!mediaRecorder || mediaRecorder.state === 'inactive') {
+        navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+            const v = document.getElementById('visualizer'); visualizerCanvasCtx = v.getContext('2d');
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = audioCtx.createMediaStreamSource(s); analyser = audioCtx.createAnalyser(); analyser.fftSize = 256; src.connect(analyser);
+            visualizerDataArray = new Uint8Array(analyser.frequencyBinCount); v.classList.remove('hidden'); document.getElementById('micIconContainer').classList.add('hidden');
+            const draw = () => { visualizerReqId = requestAnimationFrame(draw); analyser.getByteFrequencyData(visualizerDataArray); visualizerCanvasCtx.clearRect(0,0,v.width,v.height); visualizerCanvasCtx.fillStyle = '#ef4444'; visualizerDataArray.forEach((val, i) => { visualizerCanvasCtx.fillRect(i*2, v.height - val/3, 1.5, val/3); }); };
+            draw();
+            mediaRecorder = new MediaRecorder(s); audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                selectedFile = new File([new Blob(audioChunks, {type:'audio/wav'})], "recording.wav", {type:"audio/wav"});
+                document.getElementById('fileNameDisplay').innerText = selectedFile.name;
+                cancelAnimationFrame(visualizerReqId); v.classList.add('hidden'); document.getElementById('micIconContainer').classList.remove('hidden'); s.getTracks().forEach(t => t.stop());
+            };
+            mediaRecorder.start(); document.getElementById('recordText').innerText = "עצור";
+        }).catch(() => showToast("אין גישה למיקרופון", "error"));
+    } else { mediaRecorder.stop(); document.getElementById('recordText').innerText = "התחל להקליט"; }
+}
+
+function previewVisionImage(input) {
+    if(input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('visionPreview').src = e.target.result; document.getElementById('visionPreview').classList.remove('hidden'); document.getElementById('visionPlaceholder').classList.add('hidden'); };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 </script>
 </body>
 </html>
